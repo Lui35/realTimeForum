@@ -31,17 +31,19 @@ func (s *server) Init() {
 	s.mux.HandleFunc("/filterCreatedPost", s.filterCreatedPost)
 	s.mux.HandleFunc("/filterLikedPost", s.filterLikedPost)
 
-
 	s.mux.HandleFunc("/login", s.loginPage)
 	s.mux.HandleFunc("/loginAction", s.login)
 
 	s.mux.HandleFunc("/register", s.registerPage)
 	s.mux.HandleFunc("/registerAction", s.registration)
-	
+
 	s.mux.HandleFunc("/logout", s.logout)
 
 	s.mux.HandleFunc("/createPost", s.createPostPage)
 	s.mux.HandleFunc("/createPostAction", s.createPost)
+
+	//adding the chat here
+	s.mux.HandleFunc("/chat", s.Chat)
 
 	s.mux.HandleFunc("/post", s.postPage)
 
@@ -58,7 +60,6 @@ func (s *server) Init() {
 		log.Fatal("ListenAndServe: ", err)
 	}
 }
-
 
 func open(url string) error {
 	var cmd string

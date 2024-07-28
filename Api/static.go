@@ -5,14 +5,7 @@ import (
 	"html/template"
 	"net/http"
 	"strconv"
-
-	"github.com/gorilla/websocket"
 )
-
-var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
-}
 
 func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
 	tmpl = "front-end/templates/" + tmpl + ".html"
@@ -28,23 +21,27 @@ func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
 }
 
 func (s *server) indexHandler(w http.ResponseWriter, r *http.Request) {
-	//check if the url /
-
-	if r.URL.Path != "/" {
-		http.NotFound(w, r)
-		return
-	}
-	isLoggedIn, userID := s.authenticateCookie(r)
-	var posts []backend.Post
-	backend.GetPosts(s.db, userID, &posts)
-	Categories := backend.GetCategories(s.db)
-	renderTemplate(w, "index", map[string]interface{}{
-		"Title":      "Homepage",
-		"isLoggedIn": isLoggedIn,
-		"Posts":      posts,
-		"Categories": Categories,
-	})
+	http.ServeFile(w, r, "front-end/templates/layout.html")
 }
+
+// func (s *server) indexHandler(w http.ResponseWriter, r *http.Request) {
+// 	//check if the url /
+
+// 	if r.URL.Path != "/" {
+// 		http.NotFound(w, r)
+// 		return
+// 	}
+// 	isLoggedIn, userID := s.authenticateCookie(r)
+// 	var posts []backend.Post
+// 	backend.GetPosts(s.db, userID, &posts)
+// 	Categories := backend.GetCategories(s.db)
+// 	renderTemplate(w, "index", map[string]interface{}{
+// 		"Title":      "Homepage",
+// 		"isLoggedIn": isLoggedIn,
+// 		"Posts":      posts,
+// 		"Categories": Categories,
+// 	})
+// }
 
 func (s *server) filterCreatedPost(w http.ResponseWriter, r *http.Request) {
 	isLoggedIn, userID := s.authenticateCookie(r)
@@ -100,6 +97,14 @@ func (s *server) loginPage(w http.ResponseWriter, r *http.Request) {
 	isLoggedIn, _ := s.authenticateCookie(r)
 	renderTemplate(w, "login", map[string]interface{}{
 		"Title":      "Login",
+		"isLoggedIn": isLoggedIn,
+	})
+}
+
+func (s *server) Chat(w http.ResponseWriter, r *http.Request) {
+	isLoggedIn, _ := s.authenticateCookie(r)
+	renderTemplate(w, "chat", map[string]interface{}{
+		"Title":      "chat",
 		"isLoggedIn": isLoggedIn,
 	})
 }

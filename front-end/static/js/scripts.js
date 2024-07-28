@@ -10,13 +10,14 @@ function loginAction() {
         $("#error").fadeOut(5000);
         return;
     }
-    if (!checkEmail(email)) {
-        $("#error").html("Invalid email address");
-        $("#error").show();
-        $("#error").removeClass("d-none");
-        $("#error").fadeOut(5000);
-        return;
-    }
+    
+    // if (!checkEmail(email)) {
+    //     $("#error").html("Invalid email address");
+    //     $("#error").show();
+    //     $("#error").removeClass("d-none");
+    //     $("#error").fadeOut(5000);
+    //     return;
+    // }
     $.ajax({
         url: "/loginAction",
         type: "POST",
@@ -37,6 +38,7 @@ function loginAction() {
     });
 }
 
+
 function checkEmail(email) {
     var re = /\S+@\S+\.\S+/;
     return re.test(email);
@@ -51,8 +53,20 @@ function registerAction() {
     const email = document.getElementById('email').value;
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
-    if(hasSpaces(email) || hasSpaces(username) || hasSpaces(password)){
-        $("#error").html("Email and password and username cannot contain spaces");
+    const firstName = document.getElementById('firstName').value;
+    const lastName = document.getElementById('lastName').value;
+    const age = document.getElementById('age').value;
+
+    if(!isNaN(age)){
+        $("#error").html("Age must be a number");
+        $("#error").show();
+        $("#error").removeClass("d-none");
+        $("#error").fadeOut(5000);
+        return;
+    }
+
+    if(hasSpaces(email) || hasSpaces(username) || hasSpaces(password) || hasSpaces(firstName) || hasSpaces(lastName) || hasSpaces(age)){
+        $("#error").html("Email, password, username, first name, last name, and age cannot contain spaces");
         $("#error").show();
         $("#error").removeClass("d-none");
         $("#error").fadeOut(5000);
@@ -66,14 +80,17 @@ function registerAction() {
         $("#error").fadeOut(5000);
         return;
     }
-
+    debugger;
     $.ajax({
         url: "/registerAction",
         type: "POST",
         data: JSON.stringify({
             email: email,
             username: username,
-            password: password
+            password: password,
+            age: age,
+            firstName: firstName,
+            lastName: lastName
         }),
         contentType: "application/json",
         success: function (data) {

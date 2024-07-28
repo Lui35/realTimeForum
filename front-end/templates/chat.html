@@ -1,0 +1,95 @@
+{{define "content"}}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Application</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        #online-users {
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        #messages {
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        #chat-section {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        #message-input {
+            flex: 0 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Online Users Section -->
+            <div class="col-md-3 border-right" id="online-users-section">
+                <h4>Online Users</h4>
+                <ul class="list-group" id="online-users">
+                    <!-- Dynamically populated online users list -->
+                </ul>
+            </div>
+            <!-- Chat Section -->
+            <div class="col-md-9" id="chat-section">
+                <div id="messages" class="flex-grow-1 border-bottom">
+                    <!-- Dynamically populated messages -->
+                </div>
+                <div class="input-group" id="message-input">
+                    <input type="text" class="form-control" placeholder="Type your message..." id="messageContent">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="button" onclick="sendMessage()">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // Mock data
+        const users = [
+            { id: 1, username: 'Alice', online: true },
+            { id: 2, username: 'Bob', online: true },
+            { id: 3, username: 'Charlie', online: false }
+        ];
+
+        const messages = [
+            { sender: 'Alice', content: 'Hello!' },
+            { sender: 'Bob', content: 'Hi there!' }
+        ];
+
+        $(document).ready(function() {
+            // Populate online users
+            const onlineUsersList = $('#online-users');
+            users.forEach(user => {
+                if (user.online) {
+                    onlineUsersList.append(`<li class="list-group-item">${user.username}</li>`);
+                }
+            });
+
+            // Populate messages
+            const messagesDiv = $('#messages');
+            messages.forEach(msg => {
+                messagesDiv.append(`<div><strong>${msg.sender}:</strong> ${msg.content}</div>`);
+            });
+        });
+
+        function sendMessage() {
+            const messageContent = $('#messageContent').val();
+            if (messageContent.trim() !== '') {
+                const messagesDiv = $('#messages');
+                messagesDiv.append(`<div><strong>You:</strong> ${messageContent}</div>`);
+                $('#messageContent').val('');
+                // TODO: Send message to server
+            }
+        }
+    </script>
+</body>
+
+{{end}}

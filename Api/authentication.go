@@ -16,9 +16,12 @@ type LoginJson struct {
 }
 
 type RegisterJson struct {
-	Email    string `json:"email"`
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Email     string `json:"email"`
+	Username  string `json:"username"`
+	Password  string `json:"password"`
+	Age       string `json:"age"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
 }
 
 var emptyCookie = &http.Cookie{
@@ -82,7 +85,7 @@ func (s *server) registration(res http.ResponseWriter, req *http.Request) {
 	}
 
 	//insert data
-	_, err = s.db.Exec("INSERT INTO users (email, username, password)VALUES(?, ?, ?)", registration.Email, registration.Username, hashPass)
+	_, err = s.db.Exec("INSERT INTO users (email, username, password, age, first_name, last_name) VALUES (?, ?, ?, ?, ?, ?)", registration.Email, registration.Username, hashPass, registration.Age, registration.FirstName, registration.LastName)
 	if err != nil {
 		http.Error(res, "Server error", http.StatusInternalServerError)
 		return
@@ -129,9 +132,11 @@ func (s *server) login(res http.ResponseWriter, req *http.Request) {
 
 	var storedPass string
 	var userID int
-	err = s.db.QueryRow("SELECT id, password FROM users WHERE email = ?", login.Email).Scan(&userID, &storedPass)
+
+	err = s.db.QueryRow("SELECT id, password FROM users WHERE email = ? OR username = ?", login.Email, login.Email).Scan(&userID, &storedPass)
+
 	if err != nil {
-		http.Error(res, "invalild email or password", http.StatusUnauthorized)
+		http.Error(res, "invalild email/username or password", http.StatusUnauthorized)
 		return
 	}
 
