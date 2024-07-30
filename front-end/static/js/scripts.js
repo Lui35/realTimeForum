@@ -57,7 +57,8 @@ function registerAction() {
     const lastName = document.getElementById('lastName').value;
     const age = document.getElementById('age').value;
 
-    if(!isNaN(age)){
+    debugger;
+    if(isNaN(age)){
         $("#error").html("Age must be a number");
         $("#error").show();
         $("#error").removeClass("d-none");

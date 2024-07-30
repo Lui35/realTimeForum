@@ -49,7 +49,6 @@ func (s *server) likeDislikePost(w http.ResponseWriter, r *http.Request) {
 	// save like to the database for the user
 	ok := backend.LikeDislikePost(s.db, userID, LikeDis.ID, isLike)
 	if ok {
-
 		isLiked := backend.KnowPostLike(s.db, userID, LikeDis.ID)
 		// return data to the client that the like is success
 		w.Header().Set("Content-Type", "application/json")

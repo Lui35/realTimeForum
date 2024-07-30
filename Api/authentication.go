@@ -239,3 +239,34 @@ func (s *server) authenticateCookie(r *http.Request) (bool, int) {
 
 	return true, userID
 }
+
+func (s *server) authenticateCookieWithJS(w http.ResponseWriter, r *http.Request) {
+	// extract token
+	token, err := r.Cookie("token")
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	cookie := token
+	sessionToken := cookie.Value
+	var userID int
+	var expiresAt time.Time
+
+	//get the cookie to use token to get userID
+	err = s.db.QueryRow("SELECT user_id, expires_at FROM sessions WHERE session_token = ?", sessionToken).Scan(&userID, &expiresAt)
+	if err != nil || expiresAt.Before(time.Now()) {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	// check if the session ended or not
+	if expiresAt.Before(time.Now()) {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	// if authenticated, return userID
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(fmt.Sprintf("%d", userID)))
+}
