@@ -22,7 +22,6 @@ func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
 
 func (s *server) indexHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "front-end/templates/layout.html")
-	//isLoggedIn, userID := s.authenticateCookie(r)
 }
 
 // func (s *server) indexHandler(w http.ResponseWriter, r *http.Request) {
@@ -56,7 +55,6 @@ func (s *server) filterCreatedPost(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	Categories := backend.GetCategories(s.db)
-
 	renderTemplate(w, "index", map[string]interface{}{
 		"Title":      "Homepage",
 		"isLoggedIn": isLoggedIn,

@@ -8,6 +8,7 @@ CREATE TABLE
         age INTEGER NOT NULL,
         first_name TEXT NOT NULL,
         last_name TEXT NOT NULL,
+        gender TEXT NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
 

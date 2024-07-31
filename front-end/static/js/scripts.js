@@ -10,7 +10,7 @@ function loginAction() {
         $("#error").fadeOut(5000);
         return;
     }
-    
+    //no need for this since you can sgin in with both user and email
     // if (!checkEmail(email)) {
     //     $("#error").html("Invalid email address");
     //     $("#error").show();
@@ -56,6 +56,7 @@ function registerAction() {
     const firstName = document.getElementById('firstName').value;
     const lastName = document.getElementById('lastName').value;
     const age = document.getElementById('age').value;
+    const gender = document.querySelector('input[name="gender"]:checked').value;
 
     debugger;
     if(isNaN(age)){
@@ -91,7 +92,8 @@ function registerAction() {
             password: password,
             age: age,
             firstName: firstName,
-            lastName: lastName
+            lastName: lastName,
+            gender: gender
         }),
         contentType: "application/json",
         success: function (data) {

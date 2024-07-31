@@ -59,6 +59,39 @@ func (s *server) likeDislikePost(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "can't make like", http.StatusInternalServerError)
 }
 
+func (s *server) getPosts(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	isLoggedIn, userID := s.authenticateCookie(r)
+	var posts []backend.Post
+	if !isLoggedIn {
+		backend.GetPosts(s.db, -1, &posts)
+	} else {
+		backend.GetPosts(s.db, userID, &posts)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(posts)
+
+}
+
+func (s *server) categoriesHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// get the count of likes and dislikes
+	categories := backend.GetCategories(s.db)
+	// return the count to the client
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(categories)
+
+}
+
 func (s *server) createPost(res http.ResponseWriter, req *http.Request) {
 	isLoggedIn, userID := s.authenticateCookie(req)
 	if !isLoggedIn {

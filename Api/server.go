@@ -28,24 +28,27 @@ func (s *server) Init() {
 
 	// Define routes
 	s.mux.HandleFunc("/", s.indexHandler)
-	s.mux.HandleFunc("/filterCreatedPost", s.filterCreatedPost)
-	s.mux.HandleFunc("/filterLikedPost", s.filterLikedPost)
+	//s.mux.HandleFunc("/filterCreatedPost", s.filterCreatedPost)
+	//s.mux.HandleFunc("/filterLikedPost", s.filterLikedPost)
 
-	s.mux.HandleFunc("/login", s.loginPage)
+	//	s.mux.HandleFunc("/login", s.loginPage)
 	s.mux.HandleFunc("/loginAction", s.login)
 
-	s.mux.HandleFunc("/register", s.registerPage)
+	//  s.mux.HandleFunc("/register", s.registerPage)
 	s.mux.HandleFunc("/registerAction", s.registration)
 
 	s.mux.HandleFunc("/logout", s.logout)
 
-	s.mux.HandleFunc("/createPost", s.createPostPage)
+	//s.mux.HandleFunc("/createPost", s.createPostPage)
 	s.mux.HandleFunc("/createPostAction", s.createPost)
 
 	//adding the chat here
-	s.mux.HandleFunc("/chat", s.Chat)
+	//s.mux.HandleFunc("/chat", s.Chat)
 
-	s.mux.HandleFunc("/post", s.postPage)
+	//s.mux.HandleFunc("/post", s.postPage)
+
+	s.mux.HandleFunc("/getCategories", s.categoriesHandler)
+	s.mux.HandleFunc("/getPosts", s.getPosts)
 
 	s.mux.HandleFunc("/createCommentAction", s.createComment)
 	s.mux.HandleFunc("/likeOrDislikeComment", s.likeDislikeComment)

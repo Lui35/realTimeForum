@@ -22,6 +22,7 @@ type RegisterJson struct {
 	Age       string `json:"age"`
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
+	Gender    string `json:"gender"`
 }
 
 var emptyCookie = &http.Cookie{
@@ -85,7 +86,7 @@ func (s *server) registration(res http.ResponseWriter, req *http.Request) {
 	}
 
 	//insert data
-	_, err = s.db.Exec("INSERT INTO users (email, username, password, age, first_name, last_name) VALUES (?, ?, ?, ?, ?, ?)", registration.Email, registration.Username, hashPass, registration.Age, registration.FirstName, registration.LastName)
+	_, err = s.db.Exec("INSERT INTO users (email, username, password, age, first_name, last_name,gender) VALUES (?, ?, ?, ?, ?, ?, ?)", registration.Email, registration.Username, hashPass, registration.Age, registration.FirstName, registration.LastName, registration.Gender)
 	if err != nil {
 		http.Error(res, "Server error", http.StatusInternalServerError)
 		return
@@ -242,6 +243,11 @@ func (s *server) authenticateCookie(r *http.Request) (bool, int) {
 
 func (s *server) authenticateCookieWithJS(w http.ResponseWriter, r *http.Request) {
 	// extract token
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
 	token, err := r.Cookie("token")
 	if err != nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
