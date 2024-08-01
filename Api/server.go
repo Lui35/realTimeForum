@@ -50,6 +50,8 @@ func (s *server) Init() {
 	s.mux.HandleFunc("/getCategories", s.categoriesHandler)
 	s.mux.HandleFunc("/getPosts", s.getPosts)
 
+	s.mux.HandleFunc("/getPostDetails", s.getPostDetails)
+
 	s.mux.HandleFunc("/createCommentAction", s.createComment)
 	s.mux.HandleFunc("/likeOrDislikeComment", s.likeDislikeComment)
 	s.mux.HandleFunc("/likeOrDislikePost", s.likeDislikePost)

@@ -1,7 +1,10 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	backend "forum/db"
@@ -58,6 +61,46 @@ func (s *server) likeDislikePost(w http.ResponseWriter, r *http.Request) {
 	}
 	http.Error(w, "can't make like", http.StatusInternalServerError)
 }
+func (s *server) getPostDetails(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	isLoggedIn, userID := s.authenticateCookie(r)
+
+	var req struct {
+		PostID int `json:"postId"`
+	}
+
+	// Log the request body for debugging
+	bodyBytes, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Error reading request body", http.StatusBadRequest)
+		return
+	}
+	fmt.Println("Request Body:", string(bodyBytes))
+
+	// Re-create the reader for the request body
+	r.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+
+	err = json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	var post backend.Post
+	post.ID = req.PostID
+	if !isLoggedIn {
+		backend.GetPost(s.db, -1, &post)
+	} else {
+		backend.GetPost(s.db, userID, &post)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(post)
+}
 
 func (s *server) getPosts(w http.ResponseWriter, r *http.Request) {
 
@@ -68,6 +111,7 @@ func (s *server) getPosts(w http.ResponseWriter, r *http.Request) {
 
 	isLoggedIn, userID := s.authenticateCookie(r)
 	var posts []backend.Post
+
 	if !isLoggedIn {
 		backend.GetPosts(s.db, -1, &posts)
 	} else {

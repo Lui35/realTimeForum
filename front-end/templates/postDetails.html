@@ -29,8 +29,7 @@
                             </div>
 
                             <button type="submit" onclick="likeDislikeComment('{{$comment.ID}}','like')"
-                                    id="like-btn-{{$comment.ID}}"
-                                    class="btn btn-outline-success btn-sm
+                                id="like-btn-{{$comment.ID}}" class="btn btn-outline-success btn-sm
                                            {{if $comment.Like.IsLiked}} custom-hover-like {{end}}">
                                 <p id="like-count-{{$comment.ID}}" class="d-inline">
                                     {{$comment.Like.CountLikes}}
@@ -59,7 +58,8 @@
                     <div class="form-group mb-3">
                         <textarea class="form-control" id="comment" rows="3" placeholder="Comment"></textarea>
                     </div>
-                    <button type="button" onclick="submitComment('{{.Post.ID}}')" class="btn btn-primary">Submit</button>
+                    <button type="button" onclick="submitComment('{{.Post.ID}}')"
+                        class="btn btn-primary">Submit</button>
                 </div>
             </div>
         </div>

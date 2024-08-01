@@ -92,29 +92,11 @@ func (s *server) registerPage(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (s *server) loginPage(w http.ResponseWriter, r *http.Request) {
-	isLoggedIn, _ := s.authenticateCookie(r)
-	renderTemplate(w, "login", map[string]interface{}{
-		"Title":      "Login",
-		"isLoggedIn": isLoggedIn,
-	})
-}
-
 func (s *server) Chat(w http.ResponseWriter, r *http.Request) {
 	isLoggedIn, _ := s.authenticateCookie(r)
 	renderTemplate(w, "chat", map[string]interface{}{
 		"Title":      "chat",
 		"isLoggedIn": isLoggedIn,
-	})
-}
-
-func (s *server) createPostPage(w http.ResponseWriter, r *http.Request) {
-	isLoggedIn, _ := s.authenticateCookie(r)
-	categories := backend.GetCategories(s.db)
-	renderTemplate(w, "createPost", map[string]interface{}{
-		"Title":      "Create Post",
-		"isLoggedIn": isLoggedIn,
-		"Categories": categories,
 	})
 }
 

@@ -1,15 +1,23 @@
 // Function to handle navigation
-function navigate(event, path) {
+function navigate(event, path, postId) {
     event.preventDefault();
+    if (postId) {
+        // Append postId as a query parameter
+        path += `?postId=${postId}`;
+    }
     history.pushState({ path: path }, '', path);
-    handleNavigation(path);
+    handleNavigation(path, postId);
 }
 
-// Function to handle content loading based on the current path
 function handleNavigation(path) {
     const contentContainer = $('#pageContent');
     contentContainer.empty(); // Clear existing content
-    switch (path) {
+    
+    // Extract postId from the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const postId = urlParams.get('postId');
+
+    switch (path.split('?')[0]) { // Ignore query parameters in switch case
         case '/':
             loadHomePage();
             break;
@@ -22,11 +30,12 @@ function handleNavigation(path) {
         case '/chat':
             loadChatPage();
             break;
-        case '/filterCreatedPost':
-            loadFilterCreatedPost();
-            break;
-        case '/filterLikedPost':
-            loadFilterLikedPost();
+        case '/postDetails':
+            if (postId) {
+                loadPostDetails(postId);
+            } else {
+                loadNotFoundPage(); // Handle missing postId
+            }
             break;
         case '/createPost':
             loadCreatePost();
@@ -39,6 +48,7 @@ function handleNavigation(path) {
             break;
     }
 }
+
 
 // Function to load Home page content
 function loadHomePage() {
@@ -70,11 +80,11 @@ function fetchCategoriesForDropdown() {
     $.ajax({
         url: "/getCategories",
         type: "post",
-        success: function(categories) {
+        success: function (categories) {
             var categoriesContainer = $("#categories");
             categoriesContainer.empty(); // Clear existing categories
             categoriesContainer.append('<option selected value="All">All</option>');
-            categories.forEach(function(category) {
+            categories.forEach(function (category) {
                 var categoryOption = `<option value="${category.Name}">${category.Name}</option>`;
                 categoriesContainer.append(categoryOption);
             });
@@ -89,7 +99,7 @@ function fetchCategoriesForDropdown() {
                 }
             });
         },
-        error: function(error) {
+        error: function (error) {
             console.error("Error fetching categories:", error);
         }
     });
@@ -100,11 +110,11 @@ function fetchPosts() {
     $.ajax({
         url: "/getPosts",
         type: "POST",
-        success: function(posts) {
+        success: function (posts) {
             var postsContainer = $("#posts-container");
             postsContainer.empty(); // Clear existing posts
 
-            posts.forEach(function(post) {
+            posts.forEach(function (post) {
                 var postHtml = `
                     <div class="col-md-4 mb-5 ${post.Categories.join(' ')}" id="${post.ID}">
                         <div class="card h-100">
@@ -140,7 +150,7 @@ function fetchPosts() {
                                             </button>
                                         </div>
                                     </div>
-                                    <a class="btn btn-primary btn-sm" href="/post?id=${post.ID}">View Comments</a>
+                                    <a class="btn btn-primary btn-sm" onclick="navigate(event, '/postDetails', ${post.ID})" href="/post?id=${post.ID}">View Comments</a>
                                 </div>
                             </div>
                         </div>
@@ -149,7 +159,7 @@ function fetchPosts() {
                 postsContainer.append(postHtml);
             });
         },
-        error: function(error) {
+        error: function (error) {
             console.error("Error fetching posts:", error);
         }
     });
@@ -232,6 +242,86 @@ function loadLoginPage() {
 <br>`);
 }
 
+function loadPostDetails(postId) {
+    $.ajax({
+        url: '/getPostDetails',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ postId: parseInt(postId, 10) }), // Convert to integer
+        success: function(response) {
+            console.log("Response received:", response);         
+            // Check if comments exist and create HTML accordingly
+            const commentsHtml = response.Comments && response.Comments.length > 0
+                ? response.Comments.map(comment => `
+                    <div class="card mb-4" id="${comment.ID}">
+                        <div class="card-body">
+                            <p class="card-text">${comment.Content}</p>
+                        </div>
+                        <div class="card-footer text-muted">
+                            <div class="d-flex flex-row gap-2">
+                                <div style="margin: auto auto auto 0">
+                                    Posted by ${comment.CreatedBy} on ${comment.CreatedOn}
+                                </div>
+                                <button type="submit" onclick="likeDislikeComment('${comment.ID}','like')"
+                                        id="like-btn-${comment.ID}"
+                                        class="btn btn-outline-success btn-sm
+                                               ${comment.Like.IsLiked ? 'custom-hover-like' : ''}">
+                                    <p id="like-count-${comment.ID}" class="d-inline">
+                                        ${comment.Like.CountLikes}
+                                    </p>
+                                    <i class="bi bi-hand-thumbs-up"></i>
+                                </button>
+                                <button type="submit" onclick="likeDislikeComment('${comment.ID}','dislike')"
+                                    id="dislike-btn-${comment.ID}" class="btn btn-outline-danger btn-sm
+                                    ${comment.Like.IsDisliked ? 'custom-hover-dislike' : ''}">
+                                    <p id="dislike-count-${comment.ID}" class="d-inline">
+                                        ${comment.Like.CountDislikes}
+                                    </p>
+                                    <i class="bi bi-hand-thumbs-down"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')
+                : '<p>No comments yet. Be the first to comment!</p>'; // Message when no comments are present
+
+            $('#pageContent').html(`
+                <div class="container px-4 px-lg-5">
+                    <div class="row gx-4 gx-lg-5 justify-content-center">
+                        <div class="col-lg-8">
+                            <h1 class="mt-4">${response.Title}</h1>
+                            <p class="lead">${response.Content}</p>
+                            <p>by ${response.CreatedBy} - ${response.CreatedOn}</p>
+                            <hr>
+                            <h2>Comments</h2>
+                            <div id="commentsContainer">
+                                ${commentsHtml}  <!-- Insert generated comments HTML here -->
+                            </div>
+                            <hr>
+                            <div class="alert alert-danger d-none" id="error"></div>
+                            <div class="card my-4">
+                                <h5 class="card-header">Leave a Comment:</h5>
+                                <div class="card-body">
+                                    <div class="form-group mb-3">
+                                        <textarea class="form-control" id="comment" rows="3" placeholder="Comment"></textarea>
+                                    </div>
+                                    <button type="button" onclick="submitComment('${response.ID}')" class="btn btn-primary">Submit</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <script src="/front-end/static/js/comment.js"></script>
+            `);
+        },
+        error: function(error) {
+            console.error("Error fetching post details:", error);
+        }
+    });
+}
+
+
+
 function loadCreatePost() {
     $('#pageContent').html(`
     <div class="container px-4 px-lg-5">
@@ -277,10 +367,10 @@ function fetchCategories() {
     $.ajax({
         url: "/getCategories",
         type: "post",
-        success: function(categories) {
+        success: function (categories) {
             var container = $("#categories-container");
             container.empty();  // Clear existing content
-            categories.forEach(function(category) {
+            categories.forEach(function (category) {
                 var categoryHtml = `
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" name="categories" value="${category.Name}" id="flexCheck${category.ID}">
@@ -292,7 +382,7 @@ function fetchCategories() {
                 container.append(categoryHtml);
             });
         },
-        error: function(error) {
+        error: function (error) {
             console.error("Error fetching categories:", error);
         }
     });

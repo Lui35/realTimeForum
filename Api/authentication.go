@@ -154,8 +154,6 @@ func (s *server) login(res http.ResponseWriter, req *http.Request) {
 	}
 
 	http.SetCookie(res, &cookie)
-	http.Redirect(res, req, "/", http.StatusSeeOther)
-
 }
 
 func (s *server) logout(res http.ResponseWriter, req *http.Request) {
