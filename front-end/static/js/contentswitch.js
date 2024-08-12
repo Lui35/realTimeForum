@@ -1,5 +1,6 @@
 // Function to handle navigation
 function navigate(event, path, postId) {
+    debugger;
     event.preventDefault();
     if (postId) {
         // Append postId as a query parameter
